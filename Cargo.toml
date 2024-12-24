@@ -1,0 +1,10 @@
+[package]
+name = "image_dups"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+image = "*"
+image_hasher = "2.0"
+itertools = "0.13.0"
+rayon = "1.10.0"
