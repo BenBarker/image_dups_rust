@@ -1,7 +1,9 @@
 use rayon::prelude::*;
 use image_hasher::{ImageHash, Hasher, HasherConfig};
 
-/// Configure and return a generic image hasher configured for DCT mean hash
+pub mod utils;
+
+/// Configure and return an image hasher configured for DCT mean hash
 pub fn make_hasher(size:u32) -> Hasher{
     let config = HasherConfig::new();
     let config = config.hash_size(size, size);
@@ -27,27 +29,25 @@ pub fn hash_img_list(img_list: Vec<&str>, hasher: &Hasher) -> Vec<Result<ImageHa
 pub fn get_similar(hash_list: Vec<ImageHash>, threshold: usize) -> Vec<u32>{
     return vec![42];
     todo!("Do this");
-    //let it = (0..2).cartesian_product("αβ".chars());
-    //itertools::assert_equal(it, vec![(0, 'α'), (0, 'β'), (1, 'α'), (1, 'β')]);
+    //itertools::tuple_combinations
 }
 
-
-#[doc(hidden)]
-/// Given vector of paths return vector of hash Results (single threaded, for testing)
-fn _hash_img_list_single(img_list: Vec<&str>, hasher: &Hasher) -> Vec<Result<ImageHash,image::ImageError>> {
-    img_list.into_iter()
-    .map(|x|hash_img(x,&hasher))
-    .collect()
-}
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::path::PathBuf;
 
+    /// Given vector of paths return vector of hash Results (single threaded)
+    fn _hash_img_list_single(img_list: Vec<&str>, hasher: &Hasher) -> Vec<Result<ImageHash,image::ImageError>> {
+        img_list.into_iter()
+        .map(|x|hash_img(x,&hasher))
+        .collect()
+    }
 
     #[test]
     fn same_hash() {
-        let img_path = "test/duct.png";
+        let img_path = "tests/duct.png";
         let hasher = make_hasher(16);
         let hash1 = hash_img(img_path, &hasher).unwrap();
         let hash2 = hash_img(img_path, &hasher).unwrap();
@@ -56,7 +56,7 @@ mod tests {
 
     #[test]
     fn same_hash_list(){
-        let img_list = vec!["test/duct.png";2];
+        let img_list = vec!["tests/duct.png";2];
         let hasher = make_hasher(16);
         let hashes = _hash_img_list_single(img_list, &hasher);
         let hashes: Vec<ImageHash> = hashes.into_iter().flatten().collect(); //unwrap
@@ -65,7 +65,7 @@ mod tests {
 
     #[test]
     fn same_hash_list_parallel(){
-        let img_list = vec!["test/duct.png";2];
+        let img_list = vec!["tests/duct.png";2];
         let hasher = make_hasher(16);
         let hashes = hash_img_list(img_list, &hasher);
         let hashes: Vec<ImageHash> = hashes.into_iter().flatten().collect(); //unwrap
@@ -74,14 +74,16 @@ mod tests {
 
     #[test]
     fn parallel_hash_stable(){
-        let test_images: Vec<&str> = vec!["test/duct.png","test/chess.png","test/danger.png","test/ductice.png","test/ductrust.png"];
+        let test_images: Vec<&str> = vec!["tests/duct.png","tests/chess.png","tests/danger.png","tests/ductice.png","tests/ductrust.png"];
 
         let hasher = make_hasher(16);
         let hashes_single = _hash_img_list_single(test_images.clone(), &hasher);
         let hashes_single: Vec<ImageHash> = hashes_single.into_iter().flatten().collect(); //unwrap
         
-        let hashes_parallel = hash_img_list(test_images.clone(), &hasher);
+        let hashes_parallel = hash_img_list(test_images, &hasher);
         let hashes_parallel: Vec<ImageHash> = hashes_parallel.into_iter().flatten().collect(); //unwrap
         assert_eq!(hashes_single, hashes_parallel);
     }
+
+
 }
