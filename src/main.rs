@@ -51,15 +51,16 @@ fn main(){
     if img_list.len() < 1{
         panic!("No images found");
     }
+    println!("Found {} images.", img_list.len());
     let img_list = img_list.iter().map(|x| x.to_str().unwrap()).collect();
 
+    println!("Hashing images...");
     let hasher = image_dups::make_hasher(args.hash_size);
-
     let before = Instant::now();
     let hashes = image_dups::hash_img_list(img_list, &hasher);
 
     // Note may need to not unwrap to preserve failure indexes for later skip
-    let hashes: Vec<ImageHash> = hashes.into_iter().flatten().collect(); //unwrap results
+    //let hashes: Vec<ImageHash> = hashes.into_iter().flatten().collect(); //unwrap results
 
     println!("Number of hashes:{}", hashes.len());
     println!("Elapsed time: {:.2?}", before.elapsed());

@@ -55,5 +55,4 @@ mod tests{
             assert!(test_images.contains(&gf));
         }
     }
-
 }
