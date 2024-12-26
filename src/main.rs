@@ -5,7 +5,7 @@
 
 use std::time::Instant;
 use std::path::PathBuf;
-use image_hasher::ImageHash;
+use image_dups::{get_clusters, utils};
 use clap::builder::TypedValueParser as _;
 use clap::Parser;
 
@@ -51,8 +51,8 @@ fn main(){
     if img_list.len() < 1{
         panic!("No images found");
     }
-    println!("Found {} images.", img_list.len());
-    let img_list = img_list.iter().map(|x| x.to_str().unwrap()).collect();
+    println!("Found {} images.", &img_list.len());
+    let img_list = &img_list.iter().map(|x| x.to_str().unwrap()).collect();
 
     println!("Hashing images...");
     let hasher = image_dups::make_hasher(args.hash_size);
@@ -61,6 +61,11 @@ fn main(){
 
     // Note may need to not unwrap to preserve failure indexes for later skip
     //let hashes: Vec<ImageHash> = hashes.into_iter().flatten().collect(); //unwrap results
+    println!("Clustering...");
+    let clustermap = get_clusters(&hashes, args.min_distance);
+
+    println!("Results:");
+    utils::format_output(img_list, clustermap);
 
     println!("Number of hashes:{}", hashes.len());
     println!("Elapsed time: {:.2?}", before.elapsed());

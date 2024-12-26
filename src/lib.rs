@@ -22,7 +22,7 @@ pub fn hash_img(img_path: &str, hasher: &Hasher)-> Result<ImageHash,ImageError>{
 }
 
 /// Given vector of paths return vector of hash Results
-pub fn hash_img_list(img_list: Vec<&str>, hasher: &Hasher) -> Vec<Result<ImageHash,ImageError>> {
+pub fn hash_img_list(img_list: &Vec<&str>, hasher: &Hasher) -> Vec<Result<ImageHash,ImageError>> {
     img_list.into_par_iter()
         .map(|x|hash_img(x, &hasher))
         .collect()
@@ -81,7 +81,7 @@ mod tests {
     fn same_hash_list(){
         let img_list = vec!["tests/duct.png";2];
         let hasher = make_hasher(16);
-        let hashes = hash_img_list(img_list, &hasher);
+        let hashes = hash_img_list(&img_list, &hasher);
         let hashes: Vec<ImageHash> = hashes.into_iter().flatten().collect(); //unwrap
         assert_eq!(hashes[0], hashes[1]);
     }
@@ -101,7 +101,7 @@ mod tests {
         let hashes_single = _hash_img_list_single(test_images.clone(), &hasher);
         let hashes_single: Vec<ImageHash> = hashes_single.into_iter().flatten().collect(); //unwrap
         
-        let hashes_parallel = hash_img_list(test_images, &hasher);
+        let hashes_parallel = hash_img_list(&test_images, &hasher);
         let hashes_parallel: Vec<ImageHash> = hashes_parallel.into_iter().flatten().collect(); //unwrap
         assert_eq!(hashes_single, hashes_parallel);
     }
@@ -122,7 +122,7 @@ mod tests {
             "tests/duplicates2/dangerB.png",];
 
         let hasher = make_hasher(16);
-        let hashes = hash_img_list(test_images.clone(), &hasher);
+        let hashes = hash_img_list(&test_images, &hasher);
         
         // Exact matches
         let hashmap = get_clusters(&hashes, 0);
