@@ -1,3 +1,8 @@
+//! Image duplicate finder
+//! Each image is p-hashed and the hamming distance between each image pair is calculated
+//! Images with a distance under a certain threshold are considered "duplicates"
+//! Outputs a list of found duplicate "clusters".
+
 use itertools::Itertools;
 use std::collections::{HashMap,HashSet};
 use rayon::prelude::*;
