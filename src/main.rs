@@ -6,7 +6,7 @@
 use std::time::Instant;
 use std::path::PathBuf;
 use image_dups::{get_clusters, utils};
-use clap::builder::TypedValueParser as _;
+use clap::builder::TypedValueParser;
 use clap::Parser;
 
 #[derive(Parser, Debug)]
@@ -28,7 +28,7 @@ pub struct Args{
     #[arg(
         long,
         short='s',
-        default_value_t = 8,
+        default_value_t = 16,
         value_parser = clap::builder::PossibleValuesParser::new(["4","8","16","32","64","128","256","512"])
             .map(|s| s.parse::<u32>().unwrap()),
     )]
@@ -37,6 +37,10 @@ pub struct Args{
     ///Min Distance threshold. 0 = only identical images match, up to hash_size = everything matches
     #[arg(long,short,default_value_t=4)]
     min_distance: u32,
+
+    ///Output file. if not specified then output is only printed.
+    #[arg(short,long)]
+    out_file: Option<String>,
 
 }
 
@@ -59,14 +63,14 @@ fn main(){
     let before = Instant::now();
     let hashes = image_dups::hash_img_list(img_list, &hasher);
 
-    // Note may need to not unwrap to preserve failure indexes for later skip
-    //let hashes: Vec<ImageHash> = hashes.into_iter().flatten().collect(); //unwrap results
     println!("Clustering...");
     let clustermap = get_clusters(&hashes, args.min_distance);
 
-    println!("Results:");
-    utils::format_output(img_list, clustermap);
-
-    println!("Number of hashes:{}", hashes.len());
+    match args.out_file {
+        Some(out_path) => utils::write_output(out_path.as_str(), img_list, clustermap).expect("write failed"),
+        _ => utils::print_output(img_list, clustermap),
+    };
     println!("Elapsed time: {:.2?}", before.elapsed());
+
+
 }
