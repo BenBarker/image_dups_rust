@@ -1,3 +1,6 @@
+# This repo has been migrated to [Codeberg](https://codeberg.org/BBarker/image_dups_rust).
+
+
 # image_dups_rust
 Image duplicate finder written in Rust
 
